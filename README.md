@@ -20,6 +20,7 @@ A lightweight, pure C implementation of a JPEG encoder designed for embedded sys
 - ✅ **Multiple input formats** - RGB, YUV420 planar, UYVY packed
 - ✅ **SIMD optimized** - ARM NEON, AArch64, MIPS MSA, x86 SSE/AVX
 - ✅ **Baseline JPEG** - Complete encoding pipeline
+- ✅ **RGB565 decoder** - Decode to embedded display format
 - ✅ **4:2:0 subsampling** - Standard chroma subsampling
 - ✅ **Configurable quality** - 1-100 quality parameter
 - ✅ **Low memory footprint** - Suitable for embedded systems
@@ -60,6 +61,9 @@ make ARCH=x86_avx
 
 # UYVY encoding
 ./jpeg_example_uyvy 640 480 85
+
+# JPEG decoding
+./jpeg_example_decode input.jpg
 ```
 
 ### API Usage
@@ -99,6 +103,23 @@ int result = jpeg_encode_yuv420(y_plane, u_plane, v_plane,
 uint8_t *uyvy_data = ...; // width * height * 2 bytes
 
 int result = jpeg_encode_uyvy(uyvy_data, 640, 480, 85, &jpeg_data, &jpeg_size);
+```
+
+#### JPEG Decoding
+
+```c
+#include "jpeg_decoder.h"
+
+uint8_t *jpeg_data = ...; // JPEG file data
+size_t jpeg_size = ...;   // JPEG file size
+uint16_t *rgb565 = NULL;
+int width, height;
+
+int result = jpeg_decode_rgb565(jpeg_data, jpeg_size, &rgb565, &width, &height);
+if (result == 0) {
+    // Use RGB565 data (16-bit per pixel)
+    jpeg_decoder_free(rgb565);
+}
 ```
 
 ### Documentation
@@ -159,6 +180,7 @@ Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) first.
 - ✅ **多种输入格式** - 支持RGB、YUV420平面、UYVY打包
 - ✅ **SIMD优化** - 支持ARM NEON、AArch64、MIPS MSA、x86 SSE/AVX
 - ✅ **完整JPEG编码** - 实现基线JPEG编码流程
+- ✅ **RGB565解码器** - 解码为嵌入式显示格式
 - ✅ **4:2:0子采样** - 标准色度子采样
 - ✅ **可配置质量** - 质量参数1-100
 - ✅ **低内存占用** - 适合嵌入式系统
@@ -199,6 +221,9 @@ make ARCH=x86_avx
 
 # UYVY编码
 ./jpeg_example_uyvy 640 480 85
+
+# JPEG解码
+./jpeg_example_decode input.jpg
 ```
 
 ### API使用
@@ -241,6 +266,24 @@ int result = jpeg_encode_yuv420(y_plane, u_plane, v_plane,
 uint8_t *uyvy_data = ...; // width * height * 2 字节
 
 int result = jpeg_encode_uyvy(uyvy_data, 640, 480, 85, &jpeg_data, &jpeg_size);
+```
+
+#### JPEG解码
+
+```c
+#include "jpeg_decoder.h"
+
+// 准备JPEG数据
+uint8_t *jpeg_data = ...; // JPEG文件数据
+size_t jpeg_size = ...;   // JPEG文件大小
+uint16_t *rgb565 = NULL;
+int width, height;
+
+int result = jpeg_decode_rgb565(jpeg_data, jpeg_size, &rgb565, &width, &height);
+if (result == 0) {
+    // 使用RGB565数据（16位/像素）
+    jpeg_decoder_free(rgb565);
+}
 ```
 
 ### 文档
