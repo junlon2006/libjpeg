@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -O2 -std=c99
+CFLAGS = -Wall -O2 -std=c99 -Isrc
 LDFLAGS = -lm
 
 # SIMD optimization flags
@@ -19,51 +19,64 @@ ifeq ($(ARCH),x86_avx)
     CFLAGS += -mavx2 -DUSE_SIMD_CONVERT -DUSE_SIMD_DCT
 endif
 
-TARGET = jpeg_example
-TARGET_YUV = jpeg_example_yuv
-TARGET_UYVY = jpeg_example_uyvy
-TARGET_DECODE = jpeg_example_decode
-OBJS = jpeg_encoder.o jpeg_simd.o example.o
-OBJS_YUV = jpeg_encoder.o jpeg_simd.o example_yuv.o
-OBJS_UYVY = jpeg_encoder.o jpeg_simd.o example_uyvy.o
-OBJS_DECODE = jpeg_decoder.o example_decode.o
+# Source files
+SRC_DIR = src
+EXAMPLE_DIR = examples
+BUILD_DIR = build
 
-all: $(TARGET) $(TARGET_YUV) $(TARGET_UYVY) $(TARGET_DECODE)
+# Targets
+TARGET_RGB = $(BUILD_DIR)/jpeg_example
+TARGET_YUV = $(BUILD_DIR)/jpeg_example_yuv
+TARGET_UYVY = $(BUILD_DIR)/jpeg_example_uyvy
+TARGET_DECODE = $(BUILD_DIR)/jpeg_example_decode
 
-$(TARGET): $(OBJS)
-	$(CC) $(OBJS) -o $(TARGET) $(LDFLAGS)
+# Object files
+ENCODER_OBJS = $(BUILD_DIR)/jpeg_encoder.o $(BUILD_DIR)/jpeg_simd.o
+DECODER_OBJS = $(BUILD_DIR)/jpeg_decoder.o
 
-$(TARGET_YUV): $(OBJS_YUV)
-	$(CC) $(OBJS_YUV) -o $(TARGET_YUV) $(LDFLAGS)
+all: $(BUILD_DIR) $(TARGET_RGB) $(TARGET_YUV) $(TARGET_UYVY) $(TARGET_DECODE)
 
-$(TARGET_UYVY): $(OBJS_UYVY)
-	$(CC) $(OBJS_UYVY) -o $(TARGET_UYVY) $(LDFLAGS)
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
 
-$(TARGET_DECODE): $(OBJS_DECODE)
-	$(CC) $(OBJS_DECODE) -o $(TARGET_DECODE) $(LDFLAGS)
+# Encoder library objects
+$(BUILD_DIR)/jpeg_encoder.o: $(SRC_DIR)/jpeg_encoder.c $(SRC_DIR)/jpeg_encoder.h $(SRC_DIR)/jpeg_simd.h
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/jpeg_encoder.c -o $@
 
-jpeg_encoder.o: jpeg_encoder.c jpeg_encoder.h jpeg_simd.h
-	$(CC) $(CFLAGS) -c jpeg_encoder.c
+$(BUILD_DIR)/jpeg_simd.o: $(SRC_DIR)/jpeg_simd.c $(SRC_DIR)/jpeg_simd.h
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/jpeg_simd.c -o $@
 
-jpeg_decoder.o: jpeg_decoder.c jpeg_decoder.h
-	$(CC) $(CFLAGS) -c jpeg_decoder.c
+# Decoder library objects
+$(BUILD_DIR)/jpeg_decoder.o: $(SRC_DIR)/jpeg_decoder.c $(SRC_DIR)/jpeg_decoder.h
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/jpeg_decoder.c -o $@
 
-jpeg_simd.o: jpeg_simd.c jpeg_simd.h
-	$(CC) $(CFLAGS) -c jpeg_simd.c
+# Example executables
+$(TARGET_RGB): $(ENCODER_OBJS) $(BUILD_DIR)/example.o
+	$(CC) $^ -o $@ $(LDFLAGS)
 
-example.o: example.c jpeg_encoder.h
-	$(CC) $(CFLAGS) -c example.c
+$(TARGET_YUV): $(ENCODER_OBJS) $(BUILD_DIR)/example_yuv.o
+	$(CC) $^ -o $@ $(LDFLAGS)
 
-example_yuv.o: example_yuv.c jpeg_encoder.h
-	$(CC) $(CFLAGS) -c example_yuv.c
+$(TARGET_UYVY): $(ENCODER_OBJS) $(BUILD_DIR)/example_uyvy.o
+	$(CC) $^ -o $@ $(LDFLAGS)
 
-example_uyvy.o: example_uyvy.c jpeg_encoder.h
-	$(CC) $(CFLAGS) -c example_uyvy.c
+$(TARGET_DECODE): $(DECODER_OBJS) $(BUILD_DIR)/example_decode.o
+	$(CC) $^ -o $@ $(LDFLAGS)
 
-example_decode.o: example_decode.c jpeg_decoder.h
-	$(CC) $(CFLAGS) -c example_decode.c
+# Example object files
+$(BUILD_DIR)/example.o: $(EXAMPLE_DIR)/example.c $(SRC_DIR)/jpeg_encoder.h
+	$(CC) $(CFLAGS) -c $(EXAMPLE_DIR)/example.c -o $@
+
+$(BUILD_DIR)/example_yuv.o: $(EXAMPLE_DIR)/example_yuv.c $(SRC_DIR)/jpeg_encoder.h
+	$(CC) $(CFLAGS) -c $(EXAMPLE_DIR)/example_yuv.c -o $@
+
+$(BUILD_DIR)/example_uyvy.o: $(EXAMPLE_DIR)/example_uyvy.c $(SRC_DIR)/jpeg_encoder.h
+	$(CC) $(CFLAGS) -c $(EXAMPLE_DIR)/example_uyvy.c -o $@
+
+$(BUILD_DIR)/example_decode.o: $(EXAMPLE_DIR)/example_decode.c $(SRC_DIR)/jpeg_decoder.h
+	$(CC) $(CFLAGS) -c $(EXAMPLE_DIR)/example_decode.c -o $@
 
 clean:
-	rm -f $(OBJS) $(OBJS_YUV) $(OBJS_UYVY) $(OBJS_DECODE) $(TARGET) $(TARGET_YUV) $(TARGET_UYVY) $(TARGET_DECODE) output.jpg output_yuv.jpg output_uyvy.jpg output.rgb565
+	rm -rf $(BUILD_DIR) output.jpg output_yuv.jpg output_uyvy.jpg output.rgb565
 
 .PHONY: all clean

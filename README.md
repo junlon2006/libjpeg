@@ -54,16 +54,16 @@ make ARCH=x86_avx
 
 ```bash
 # RGB encoding
-./jpeg_example 640 480 85
+./build/jpeg_example 640 480 85
 
 # YUV420 encoding
-./jpeg_example_yuv 640 480 85
+./build/jpeg_example_yuv 640 480 85
 
 # UYVY encoding
-./jpeg_example_uyvy 640 480 85
+./build/jpeg_example_uyvy 640 480 85
 
 # JPEG decoding
-./jpeg_example_decode input.jpg
+./build/jpeg_example_decode input.jpg
 ```
 
 ### API Usage
@@ -124,8 +124,8 @@ if (result == 0) {
 
 ### Documentation
 
-- 📖 [API Documentation](API.md) - Detailed API reference
-- 🤝 [Contributing Guide](CONTRIBUTING.md) - How to contribute
+- 📖 [API Documentation](docs/API.md) - Detailed API reference
+- 🤝 [Contributing Guide](docs/CONTRIBUTING.md) - How to contribute
 
 ### Technical Details
 
@@ -163,7 +163,7 @@ See [LICENSE](LICENSE) file for details.
 
 ### Contributing
 
-Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) first.
+Contributions are welcome! Please read [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) first.
 
 ---
 
@@ -214,16 +214,16 @@ make ARCH=x86_avx
 
 ```bash
 # RGB编码
-./jpeg_example 640 480 85
+./build/jpeg_example 640 480 85
 
 # YUV420编码
-./jpeg_example_yuv 640 480 85
+./build/jpeg_example_yuv 640 480 85
 
 # UYVY编码
-./jpeg_example_uyvy 640 480 85
+./build/jpeg_example_uyvy 640 480 85
 
 # JPEG解码
-./jpeg_example_decode input.jpg
+./build/jpeg_example_decode input.jpg
 ```
 
 ### API使用
@@ -288,8 +288,8 @@ if (result == 0) {
 
 ### 文档
 
-- 📖 [API文档](API.md) - 详细API参考
-- 🤝 [贡献指南](CONTRIBUTING.md) - 如何贡献代码
+- 📖 [API文档](docs/API.md) - 详细API参考
+- 🤝 [贡献指南](docs/CONTRIBUTING.md) - 如何贡献代码
 
 ### 技术实现
 
@@ -327,10 +327,38 @@ if (result == 0) {
 
 ### 贡献
 
-欢迎贡献！请先阅读 [CONTRIBUTING.md](CONTRIBUTING.md)。
+欢迎贡献！请先阅读 [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md)。
 
 ### 清理
 
 ```bash
 make clean
+```
+
+
+---
+
+## Project Structure / 项目结构
+
+```
+libjpeg/
+├── src/                    # Source code / 源代码
+│   ├── jpeg_encoder.h      # Encoder header / 编码器头文件
+│   ├── jpeg_encoder.c      # Encoder implementation / 编码器实现
+│   ├── jpeg_decoder.h      # Decoder header / 解码器头文件
+│   ├── jpeg_decoder.c      # Decoder implementation / 解码器实现
+│   ├── jpeg_simd.h         # SIMD header / SIMD头文件
+│   └── jpeg_simd.c         # SIMD implementation / SIMD实现
+├── examples/               # Example programs / 示例程序
+│   ├── example.c           # RGB encoding example / RGB编码示例
+│   ├── example_yuv.c       # YUV420 encoding example / YUV420编码示例
+│   ├── example_uyvy.c      # UYVY encoding example / UYVY编码示例
+│   └── example_decode.c    # JPEG decoding example / JPEG解码示例
+├── docs/                   # Documentation / 文档
+│   ├── API.md              # API documentation / API文档
+│   └── CONTRIBUTING.md     # Contributing guide / 贡献指南
+├── build/                  # Build output (generated) / 编译输出（自动生成）
+├── Makefile                # Build configuration / 编译配置
+├── README.md               # This file / 本文件
+└── LICENSE                 # License file / 许可证文件
 ```
